@@ -3,7 +3,7 @@
 // process.stdin
 // .pipe(process.stdout)
 
-import { Readable } from "node:stream";
+import { Readable, Transform, Writable } from "node:stream";
 class oneToHundredStrema extends Readable {
   index = 1;
   _read() {
@@ -19,4 +19,21 @@ class oneToHundredStrema extends Readable {
   }
 }
 
-new oneToHundredStrema().pipe(process.stdout);
+class InverseNumberStream extends Transform {
+  _transform(chunk, encoding, callback) {
+    const transformed = Number(chunk.toString()) * -1;
+
+    callback(null, Buffer.from(String(transformed)));
+  }
+}
+
+class MultiplyByTenStream extends Writable {
+  _write(chunk, encoding, callback) {
+    console.log(Number(chunk.toString()) * 10);
+    callback();
+  }
+}
+
+new oneToHundredStrema()
+  .pipe(new InverseNumberStream())
+  .pipe(new MultiplyByTenStream());
