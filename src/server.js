@@ -1,8 +1,20 @@
 import http from "node:http";
 const users = [];
 
-const sever = http.createServer((req, res) => {
+const sever = http.createServer(async (req, res) => {
   const { method, url } = req;
+
+  const buffers = [];
+
+  for await (const chunk of req) {
+    buffers.push(chunk);
+  }
+
+  try {
+    req.body = JSON.parse(Buffer.concat(buffers).toString());
+  } catch (error) {
+    req.body = null;
+  }
 
   if (method === "GET" && url === "/users") {
     return res
@@ -11,10 +23,11 @@ const sever = http.createServer((req, res) => {
   }
 
   if (method === "POST" && url === "/users") {
+    const { name, email } = req.body;
     users.push({
       id: 1,
-      name: "Dudu",
-      email: "dudu@gmail.com",
+      name,
+      email,
     });
 
     return res.writeHead(201).end();
