@@ -5,7 +5,7 @@ class oneToHundredStrema extends Readable {
   _read() {
     const i = this.index++;
     setTimeout(() => {
-      if (i > 100) {
+      if (i > 5) {
         this.push(null);
       } else {
         const buf = Buffer.from(String(i));
@@ -19,6 +19,10 @@ fetch("http://localhost:3334", {
   method: "POST",
   body: new oneToHundredStrema(),
   duplex: "half",
-});
-
-
+})
+  .then((response) => {
+    return response.text();
+  })
+  .then((data) => {
+    console.log(data);
+  });
